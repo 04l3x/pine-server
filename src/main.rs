@@ -1,12 +1,12 @@
 mod config;
 mod database;
+mod models;
 mod graphql;
 
 use actix_files as fs;
 use actix_web::{guard, web, App, HttpResponse, HttpServer, Result};
 use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
-    EmptyMutation, EmptySubscription, Schema,
 };
 use async_graphql_actix_web::{Request, Response};
 use std::env;
@@ -23,9 +23,9 @@ async fn main() -> std::io::Result<()> {
 		env::var("PORT").expect("error NOT HOST VARIABLE")
 	);
 
-	let schema = Schema::build(graphql::QueryRoot, EmptyMutation, EmptySubscription)
-		.data( database::default_pool().await )
-		.finish();
+	let schema = graphql::build_schema().await;
+
+	let client_dir = env::var("CLIENT_PATH").unwrap();
 
     HttpServer::new(move || {
         App::new()
@@ -36,7 +36,7 @@ async fn main() -> std::io::Result<()> {
                     .guard(guard::Get())
                     .to(index_playground),
             )
-            .service(fs::Files::new("/", "../client").index_file("index.html"))
+            .service(fs::Files::new("/", client_dir.as_str()).index_file("index.html"))
     })
     .bind(url)?
     .run()

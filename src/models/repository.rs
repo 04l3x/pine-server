@@ -1,0 +1,5 @@
+struct Repository;
+
+impl Repository {
+
+}

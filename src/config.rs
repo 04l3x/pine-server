@@ -2,14 +2,11 @@ use std::path::PathBuf;
 use std::fs;
 use std::env;
 
-use crate::database;
-
 pub struct Config;
 
 impl Config {
     pub async fn run( ) {
 		Config::set_environment_variables();
-		database::initial_migrations().await;
 	}
 
 	fn set_environment_variables() {
