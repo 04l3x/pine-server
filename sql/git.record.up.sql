@@ -3,8 +3,9 @@ CREATE TABLE IF NOT EXISTS git.record
     id uuid NOT NULL,
     name text COLLATE pg_catalog."default" NOT NULL,
     created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    visibility text COLLATE pg_catalog."default" NOT NULL,
     owner_id uuid NOT NULL,
+    description text COLLATE pg_catalog."default",
+    visibility visibility NOT NULL,
     CONSTRAINT record_pkey PRIMARY KEY (id),
     CONSTRAINT record_name_key UNIQUE (name),
     CONSTRAINT owner_id FOREIGN KEY (owner_id)
