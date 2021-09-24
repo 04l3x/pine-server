@@ -1,9 +1,10 @@
-use async_graphql::{Enum, InputObject, SimpleObject};
-
 use crate::database::Pool;
-
+use async_graphql::{Enum, InputObject, SimpleObject};
 use sqlx;
-use sqlx::{FromRow, Type};
+use sqlx::{
+    postgres::{PgQueryResult, PgRow},
+    FromRow, Type,
+};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Type, Enum, Copy, Eq, PartialEq)]
@@ -28,7 +29,7 @@ impl Record {
     //async fn read_all_public() {}
     //async fn read_all_private() {
     //async fn update(id: Uuid)
-    async fn insert(self, pool: &Pool) -> sqlx::Result<sqlx::postgres::PgQueryResult> {
+    async fn insert(self, pool: &Pool) -> sqlx::Result<PgQueryResult> {
         println!("{:?}", self.visibility);
         sqlx::query(
             "
@@ -38,7 +39,7 @@ impl Record {
 		",
         )
         .bind(self.id)
-        .bind(Uuid::parse_str("c2891e06-ff21-4717-a32b-b9db295db885").unwrap()) //FIXME: change default uuid for current user uuid
+        .bind(self.owner)
         .bind(self.name)
         .bind(self.description)
         .bind(self.visibility)
@@ -56,8 +57,8 @@ impl Record {
         .await
     }
 
-    async fn select_by_id(id: Uuid, pool: &Pool) -> sqlx::Result<sqlx::postgres::PgRow> {
-        sqlx::query(
+    async fn select_by_id(id: Uuid, pool: &Pool) -> sqlx::Result<Record> {
+        sqlx::query_as::<_, Record>(
             "
 			SELECT * FROM git.record WHERE id = $1;
 		",
@@ -67,7 +68,7 @@ impl Record {
         .await
     }
 
-    async fn delete(id: Uuid, pool: &Pool) -> sqlx::Result<sqlx::postgres::PgQueryResult> {
+    async fn delete(id: Uuid, pool: &Pool) -> sqlx::Result<PgQueryResult> {
         sqlx::query(
             "
 			Delete git.record WHERE id = $1;
@@ -95,8 +96,18 @@ impl Record {
         }
     }
 
-    pub async fn create(pool: &Pool, request: RecordRequest) -> Result<(), ()> {
-        let res = Record::from(request).insert(pool).await;
+    fn new_from_request(owner: Uuid, request: RecordRequest) -> Record {
+        Record {
+            id: Uuid::new_v4(),
+            owner,
+            name: request.name,
+            description: request.description,
+            visibility: request.visibility,
+        }
+    }
+
+    pub async fn create(pool: &Pool, owner: Uuid, request: RecordRequest) -> Result<(), ()> {
+        let res = Record::new_from_request(owner, request).insert(pool).await;
         println!("{:?}", res);
         match res {
             Ok(_) => Ok(()),
@@ -109,17 +120,6 @@ impl Record {
             Ok(res) => res.into(),
             Err(_) => None,
         }
-    }
-}
-
-impl From<RecordRequest> for Record {
-    fn from(request: RecordRequest) -> Self {
-        Record::new(
-            Uuid::new_v4(),
-            request.name,
-            request.description,
-            request.visibility,
-        )
     }
 }
 
