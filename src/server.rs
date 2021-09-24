@@ -1,25 +1,21 @@
-use actix_web::{get, guard, post, web, App, Error, HttpResponse, HttpServer, Responder, Result};
-use std::{env, path};
-
 use actix_files as fs;
+use actix_web::{get, guard, post, web, App, Error, HttpResponse, HttpServer, Responder, Result};
+use std::env;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_actix_web::{Request, Response};
-
 use crate::graphql;
+use crate::utils::config::Config;
 
+
+///the server serve four things
+///the frontend client app that is a static content generated with wasm-pack
+///the graphql api that is cosumed by the frontend client
+///post and get routes for repositoriess, to enable clone, push, and pull git operations
 pub struct Server;
 
 impl Server {
     pub async fn start() -> std::io::Result<()> {
-        let url = format!(
-            "{}:{}",
-            env::var("HOST").expect("host error"),
-            env::var("PORT").expect("port error")
-        );
-
         let schema = graphql::build_schema().await;
-
-        let client_dir = env::var("CLIENT_PATH").unwrap();
 
         HttpServer::new(move || {
             App::new()
@@ -30,9 +26,9 @@ impl Server {
                         .guard(guard::Get())
                         .to(index_playground),
                 )
-                .service(fs::Files::new("/", client_dir.as_str()).index_file("index.html"))
+                .service(fs::Files::new("/", Config::client_path().as_str() ).index_file("index.html"))
         })
-        .bind(url)?
+        .bind(Config::url())?
         .run()
         .await
     }

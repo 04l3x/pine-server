@@ -1,6 +1,6 @@
 use async_graphql::{Context, Object};
 
-use crate::database::Pool;
+use crate::utils::database::Pool;
 use crate::models;
 
 pub struct Queries;

@@ -1,7 +1,7 @@
 use async_graphql::{Context, Object, Result};
 
 use crate::auth;
-use crate::database::Pool;
+use crate::utils::database::Pool;
 use crate::models::record;
 
 pub struct Mutations;
@@ -23,7 +23,7 @@ impl Mutations {
 
     async fn create_repo(&self, ctx: &Context<'_>, request: record::RecordRequest) -> bool {
         let pool = ctx.data::<Pool>().expect("error pool ctx");
-        match record::Record::create(pool, request).await {
+        match record::Record::create(pool, uuid::Uuid::new_v4(), request).await {
             Ok(_) => true,
             Err(_) => false,
         }

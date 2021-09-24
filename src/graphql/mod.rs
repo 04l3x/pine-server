@@ -3,7 +3,7 @@ mod query;
 
 use async_graphql::EmptySubscription;
 
-use crate::database;
+use crate::utils::database;
 
 pub type Schema = async_graphql::Schema<query::Queries, mutation::Mutations, EmptySubscription>;
 

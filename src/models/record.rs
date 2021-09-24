@@ -1,4 +1,4 @@
-use crate::database::Pool;
+use crate::utils::database::Pool;
 use async_graphql::{Enum, InputObject, SimpleObject};
 use sqlx;
 use sqlx::{
@@ -7,13 +7,13 @@ use sqlx::{
 };
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Type, Enum, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Enum, Type)]
 pub enum Visibility {
     Public,
     Private,
 }
 
-#[derive(Debug, Clone, FromRow, SimpleObject)]
+#[derive(Clone, Debug, FromRow, SimpleObject)]
 pub struct Record {
     id: Uuid,
     #[sqlx(rename = "owner_id")]
