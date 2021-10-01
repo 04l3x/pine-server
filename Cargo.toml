@@ -1,5 +1,5 @@
 [package]
-name = "server"
+name = "immunity-server"
 version = "0.1.0"
 authors = ["al3x al3x@al3x.io"]
 edition = "2018"
