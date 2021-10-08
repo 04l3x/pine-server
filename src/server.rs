@@ -1,7 +1,10 @@
+use crate::auth;
 use crate::graphql;
 use crate::utils::config::Config;
 use actix_files as fs;
-use actix_web::{get, guard, post, web, App, Error, HttpResponse, HttpServer, Responder, Result};
+use actix_web::{
+	get, guard, post, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder, Result,
+};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_actix_web::{Request, Response};
 use std::env;
@@ -35,8 +38,25 @@ impl Server {
 	}
 }
 
-async fn index(schema: web::Data<graphql::Schema>, req: Request) -> Response {
-	schema.execute(req.into_inner()).await.into()
+async fn index(
+	schema: web::Data<graphql::Schema>,
+	req: HttpRequest,
+	gql_request: Request,
+) -> Response {
+	let token = req.headers().get("Token").and_then(|value| {
+		value
+			.to_str()
+			.map(|s| auth::session::Token(s.to_string()))
+			.ok()
+	});
+
+	let mut request = gql_request.into_inner();
+
+	if let Some(token) = token {
+		request = request.data(token);
+	}
+
+	schema.execute(request).await.into()
 }
 
 async fn index_playground() -> Result<HttpResponse> {
