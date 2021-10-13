@@ -1,13 +1,12 @@
+mod git;
+
 use crate::auth;
 use crate::graphql;
 use crate::utils::config::Config;
 use actix_files as fs;
-use actix_web::{
-	get, guard, post, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder, Result,
-};
+use actix_web::{guard, web, App, HttpRequest, HttpResponse, HttpServer, Result};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_actix_web::{Request, Response};
-use std::env;
 
 ///the server serve four things
 ///the frontend client app that is a static content generated with wasm-pack
@@ -27,6 +26,11 @@ impl Server {
 					web::resource("/api")
 						.guard(guard::Get())
 						.to(index_playground),
+				)
+				.service(
+					web::scope("/git")
+						.configure(git::download::init)
+						.configure(git::upload::init),
 				)
 				.service(
 					fs::Files::new("/", Config::client_path().as_str()).index_file("index.html"),
@@ -65,14 +69,3 @@ async fn index_playground() -> Result<HttpResponse> {
 		.content_type("text/html; charset=utf-8")
 		.body(source))
 }
-
-/*#[get("/git/{namespace}/{repository}.git")]
-async fn git_get() -> impl Responder {
-	let git_workspace_dir = "/git/storage";
-	let repo_name = format!("a-cool-name-for-a-cool-repo{}",".git");
-	let url = path::PathBuf::from(
-		format!("{}/{}", git_workspace_dir, repo_name)
-	);
-	println!("{:?}", url);
-	HttpResponse::Ok().body("")
-}*/
