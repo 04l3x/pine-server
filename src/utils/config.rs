@@ -3,11 +3,13 @@ use std::fs;
 use std::path::PathBuf;
 
 pub struct Config;
-
+//TODO: read options flags from command line
 impl Config {
-	pub async fn run() {
-		//TODO: set rust log for different environments
+	pub fn run() {
 		env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
+		env_logger::init();
+		//TODO: set rust log for different environments
+		//TODO: verify system dependencies when init ?
 		Config::set_environment_variables();
 	}
 

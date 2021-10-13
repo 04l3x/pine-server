@@ -7,7 +7,6 @@ mod utils;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-	utils::config::Config::run().await;
-	env_logger::init();
+	utils::config::Config::run();
 	server::Server::start().await
 }
