@@ -1,5 +1,5 @@
 [package]
-name = "immunity-server"
+name = "pine-server"
 version = "0.1.0"
 authors = ["al3x al3x@al3x.io"]
 edition = "2018"
@@ -42,3 +42,6 @@ features = [
 	"v4"
 ]
 
+[dependencies.git]
+path = "../pine-git"
+package = "pine-git"

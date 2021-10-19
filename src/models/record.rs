@@ -1,4 +1,5 @@
-use super::repository::Repository;
+use git::Repo;
+
 use crate::error::{BackendError, Result};
 use crate::utils::database::Pool;
 use async_graphql::{Enum, InputObject, SimpleObject};
@@ -118,12 +119,12 @@ impl Record {
 	}
 
 	pub async fn initialize(pool: &Pool, owner_id: Uuid, request: NewRepository) -> Result<()> {
-		match Record::new_from_request(owner_id.clone(), request.clone())
-			.insert(pool)
-			.await
-		{
+		let new_repo = Record::new_from_request(owner_id.clone(), request.clone());
+		let repo_id = new_repo.id;
+
+		match new_repo.insert(pool).await {
 			Ok(_) => {
-				Repository::new_bare(request.name, owner_id);
+				Repo::new_bare(repo_id, owner_id);
 				Ok(())
 			}
 			Err(e) => Err(Box::new(e)),

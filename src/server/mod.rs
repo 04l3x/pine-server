@@ -28,9 +28,7 @@ impl Server {
 						.to(index_playground),
 				)
 				.service(
-					web::scope("/git")
-						.configure(git::download::init)
-						.configure(git::upload::init),
+					web::scope("/git").configure(git::init)
 				)
 				.service(
 					fs::Files::new("/", Config::client_path().as_str()).index_file("index.html"),
