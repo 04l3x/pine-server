@@ -6,8 +6,9 @@ use async_graphql::{Enum, InputObject, SimpleObject};
 use sqlx;
 use sqlx::{
 	postgres::{PgQueryResult, PgRow},
-	FromRow, Type,
+	FromRow, Row, Type,
 };
+use std::path::PathBuf;
 use uuid::Uuid;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Enum, Type)]
@@ -29,7 +30,31 @@ pub struct Record {
 impl Record {
 	//async fn read_all_by_owner(owner_id: Uuid, pool: &Pool) {}
 	//async fn read_all_private() {
-	//async fn update(id: Uuid)
+
+	async fn read_path_info(
+		pool: &Pool,
+		repo_name: String,
+		username: String,
+	) -> sqlx::Result<PgRow> {
+		sqlx::query(
+			"
+			SELECT
+				rec.id AS id, users.id AS owner_id
+			FROM
+				git.record AS rec
+			JOIN
+				public.users AS users
+			ON
+				rec.owner_id = users.id
+			WHERE
+				name = $1 AND username = $2;
+			",
+		)
+		.bind(repo_name)
+		.bind(username)
+		.fetch_one(pool)
+		.await
+	}
 
 	async fn read_all_public(pool: &Pool) -> sqlx::Result<Vec<Record>> {
 		sqlx::query_as::<_, Record>(
@@ -135,6 +160,23 @@ impl Record {
 		match Record::read_all_public(pool).await {
 			Ok(res) => res.into(),
 			Err(_) => None,
+		}
+	}
+
+	pub async fn repo_path<'a>(
+		pool: &Pool,
+		repo_name: String,
+		username: String,
+	) -> Result<PathBuf> {
+		match Record::read_path_info(pool, repo_name, username).await {
+			Ok(pg_row) => {
+				let root = std::env::var("GIT_ROOT_DIR").expect("no git root dir var");
+				let owner = pg_row.get::<Uuid, _>("owner_id");
+				let repo = pg_row.get::<Uuid, _>("id");
+				let path = format!("{}/{}/{}.git", root, owner, repo);
+				Ok(PathBuf::from(path))
+			}
+			Err(e) => Err(Box::new(e)),
 		}
 	}
 }
