@@ -1,32 +1,67 @@
-use async_graphql::{Context, Object};
-
-use crate::models;
+use crate::error::Result;
+use crate::models::record::{Record, RecordFilter, Records, RecordsBuilder};
 use crate::utils::database::Pool;
-
-use uuid::Uuid;
+use async_graphql::{Context, Object};
+//use git::{RepoTree, RepoFullTree/*, RepoFullInfo*/};
 
 pub struct Queries;
 
 #[Object]
 impl Queries {
-	async fn all_public_record(&self, ctx: &Context<'_>) -> Option<Vec<models::record::Record>> {
+	async fn public_record(
+		&self,
+		ctx: &Context<'_>,
+		page: Option<i32>,
+		query: Option<String>,
+	) -> Result<Records> {
 		let pool = ctx.data::<Pool>().expect("error pool ctx");
-		models::record::Record::get_all_public(pool).await
+
+		match query {
+			Some(query) => match page {
+				Some(page) => Ok(RecordsBuilder::new().build()),
+				None => Ok(RecordsBuilder::new().build()),
+			},
+			None => match page {
+				Some(page) => Record::public_record_paginated(pool, page).await,
+				None => Record::public_record_paginated(pool, 1).await,
+			},
+		}
 	}
 
-	async fn tree(&self, ctx: &Context<'_>, repo_id: Uuid) -> Option<bool> {
-		Some(false)
-	}
+	//async fn public_record(
+	//	&self,
+	//	ctx: &Context<'_>,
+	//	page: Option<i32>,
+	//	query: Option<String>,
+	//) -> Result<Records> {
+	//	let pool = ctx.data::<Pool>().expect("error pool ctx");
 
-	async fn full_tree(&self, ctx: &Context<'_>, repo_id: Uuid) -> Option<bool> {
-		Some(false)
-	}
+	//	match query {
+	//		Some(query) => match page {
+	//			Some(page) => Ok(RecordsBuilder::new().build()),
+	//			None => Ok(RecordsBuilder::new().build()),
+	//		},
+	//		None => match page {
+	//			Some(page) => Record::public_record_paginated(pool, page).await,
+	//			None => Record::public_record_paginated(pool, 1).await,
+	//		},
+	//	}
+	//}
 
-	/*async fn list_all_repos(&self, ctx: &Context<'_>) -> Option<bool> {
-		Some(false)
-	}
+	async fn debug_tree(
+		&self,
+		ctx: &Context<'_>,
+		username: String,
+		repo_name: String,
+	) -> Result<bool> {
+		let pool = ctx.data::<Pool>().expect("error pool ctx");
 
-	async fn list_all_with_filter(&self, ctx: &Context<'_>) -> Option<bool> {
-		Some(false)
-	}*/
+		match Record::repo_path(pool, repo_name, username).await {
+			Ok(path) => {
+				git::Repo::debug_tree(path);
+				Ok(true)
+			}
+			Err(e) => Err(e),
+		}
+	}
 }

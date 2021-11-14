@@ -47,3 +47,8 @@ features = [
 [dependencies.git]
 path = "../pine-git"
 package = "pine-git"
+
+
+[dependencies.error]
+path = "../pine-error"
+package = "pine-error"

@@ -1,9 +1,9 @@
+pub mod info;
 mod mutation;
 mod query;
 
-use async_graphql::EmptySubscription;
-
 use crate::utils::database;
+use async_graphql::EmptySubscription;
 
 pub type Schema = async_graphql::Schema<query::Queries, mutation::Mutations, EmptySubscription>;
 
