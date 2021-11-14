@@ -1,5 +1,5 @@
 use crate::error::Result;
-use crate::models::record::{Record, RecordFilter, Records, RecordsBuilder};
+use crate::models::record::{Record, /*RecordFilter, */ Records};
 use crate::utils::database::Pool;
 use async_graphql::{Context, Object};
 //use git::{RepoTree, RepoFullTree/*, RepoFullInfo*/};
@@ -18,8 +18,10 @@ impl Queries {
 
 		match query {
 			Some(query) => match page {
-				Some(page) => Ok(RecordsBuilder::new().build()),
-				None => Ok(RecordsBuilder::new().build()),
+				Some(page) => {
+					Record::public_record_paginated_with_name_filter(pool, page, query).await
+				}
+				None => Record::public_record_paginated_with_name_filter(pool, 1, query).await,
 			},
 			None => match page {
 				Some(page) => Record::public_record_paginated(pool, page).await,
@@ -32,7 +34,7 @@ impl Queries {
 	//	&self,
 	//	ctx: &Context<'_>,
 	//	page: Option<i32>,
-	//	query: Option<String>,
+	//	query: Option<String>, //Option<Filter>
 	//) -> Result<Records> {
 	//	let pool = ctx.data::<Pool>().expect("error pool ctx");
 

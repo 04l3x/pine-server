@@ -1,5 +1,3 @@
-use async_graphql::{Context, Object};
-
 use crate::auth;
 use crate::auth::{
 	session::Token,
@@ -7,6 +5,8 @@ use crate::auth::{
 };
 use crate::models::record;
 use crate::utils::database::Pool;
+use async_graphql::{Context, Object};
+use uuid::Uuid;
 
 pub struct Mutations;
 
@@ -28,13 +28,13 @@ impl Mutations {
 		&self,
 		ctx: &'a Context<'_>,
 		request: record::NewRepository,
-	) -> Result<bool> {
+	) -> Result<Uuid> {
 		match ctx.data::<Token>() {
 			Ok(token) => {
 				if token.is_valid() {
 					let pool = ctx.data::<Pool>().expect("error pool ctx");
 					match record::Record::initialize(pool, token.get_sub_uuid(), request).await {
-						Ok(_) => Ok(true),
+						Ok(uuid) => Ok(uuid),
 						Err(_) => Err(Box::new(ApiError::Other)),
 					}
 				} else {
