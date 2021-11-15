@@ -1,7 +1,7 @@
-use crate::error::{BackendError, Result};
 use crate::graphql::info::{Info, InfoFactory};
 use crate::utils::database::Pool;
 use async_graphql::{Enum, InputObject, SimpleObject};
+use error::Result;
 use git::Repo;
 use sqlx;
 use sqlx::{
@@ -262,20 +262,18 @@ impl Record {
 		query: String,
 	) -> Result<Records> {
 		match Record::read_public_by_page_filter_by_name(pool, page, query.clone()).await {
-			Ok(results) => {
-				match Record::size_of_public_record_filter_by_name(pool, query).await {
-					Ok(count) => {
-						let mut builder = RecordsBuilder::new();
+			Ok(results) => match Record::size_of_public_record_filter_by_name(pool, query).await {
+				Ok(count) => {
+					let mut builder = RecordsBuilder::new();
 
-						builder.set_values(
-							InfoFactory::default().info(count as i32, page, 15),
-							Some(results),
-						);
+					builder.set_values(
+						InfoFactory::default().info(count as i32, page, 15),
+						Some(results),
+					);
 
-						Ok(builder.build())
-					},
-					Err(e) => Err(Box::new(e)),
+					Ok(builder.build())
 				}
+				Err(e) => Err(Box::new(e)),
 			},
 			Err(e) => Err(Box::new(e)),
 		}
@@ -283,20 +281,18 @@ impl Record {
 
 	pub async fn public_record_paginated(pool: &Pool, page: i32) -> Result<Records> {
 		match Record::read_public_by_page(pool, page).await {
-			Ok(results) => {
-				match Record::size_of_public_record(pool).await {
-					Ok(count) => {
-						let mut builder = RecordsBuilder::new();
+			Ok(results) => match Record::size_of_public_record(pool).await {
+				Ok(count) => {
+					let mut builder = RecordsBuilder::new();
 
-						builder.set_values(
-							InfoFactory::default().info(count as i32, page, 15),
-							Some(results),
-						);
+					builder.set_values(
+						InfoFactory::default().info(count as i32, page, 15),
+						Some(results),
+					);
 
-						Ok(builder.build())
-					},
-					Err(e) => Err(Box::new(e)),
+					Ok(builder.build())
 				}
+				Err(e) => Err(Box::new(e)),
 			},
 			Err(e) => Err(Box::new(e)),
 		}

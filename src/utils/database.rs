@@ -1,7 +1,5 @@
 use sqlx::postgres::PgPoolOptions;
 use std::env;
-//use std::path::PathBuf;
-//use std::fs;
 
 pub type Pool = sqlx::Pool<sqlx::Postgres>;
 
@@ -32,37 +30,3 @@ fn uri() -> String {
 	)
 }
 
-//pub async fn initial_migrations() {
-//	let pool = pool_with_options(1).await;
-//
-//	sqlx::query(
-//		fs::read_to_string(
-//			PathBuf::from("sql/schema.up.sql")
-//		).unwrap()
-//		.as_str()
-//	)
-//	.execute(&pool)
-//	.await
-//	.unwrap();
-//
-//	for file in fs::read_dir( PathBuf::from("sql") ).unwrap() {
-//		match &file {
-//			Ok(file) => {
-//				if file.path().to_str().expect("").contains(".up.sql")
-//					&& !file.path().to_str().expect("").contains("schema.up.sql") {
-//
-//					sqlx::query(
-//						fs::read_to_string(
-//							file.path()
-//						).unwrap()
-//						.as_str()
-//					)
-//					.execute(&pool)
-//					.await
-//					.unwrap();
-//				}
-//			},
-//			Err(e) => panic!("{:?}",e),
-//		}
-//	}
-//}
