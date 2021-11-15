@@ -1,7 +1,7 @@
 pub mod session;
 pub mod user;
 
-use crate::error::Result;
+use error::Result;
 
 use crate::utils::database::Pool;
 use session::Token;

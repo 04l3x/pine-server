@@ -1,6 +1,6 @@
-use crate::error::{AuthError, Result};
 use async_graphql::Object;
 use chrono::{DateTime, Duration, Timelike, Utc};
+use error::{AuthError, Result};
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{
 	decode, encode, Algorithm, DecodingKey, EncodingKey, Header, TokenData, Validation,

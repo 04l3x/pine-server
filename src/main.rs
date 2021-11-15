@@ -1,5 +1,4 @@
 mod auth;
-mod error;
 mod graphql;
 mod models;
 mod server;

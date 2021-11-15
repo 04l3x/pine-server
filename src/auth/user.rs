@@ -1,10 +1,10 @@
-use crate::error::{AuthError, Result};
 use crate::utils::database::Pool;
 use argon2::{
 	password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
 	Algorithm, Argon2, Params, Version,
 };
 use async_graphql::InputObject;
+use error::{AuthError, Result};
 use sqlx;
 use sqlx::{
 	postgres::{PgQueryResult, PgRow},

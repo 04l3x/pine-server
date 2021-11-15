@@ -6,11 +6,10 @@ use crate::auth::{
 use crate::models::record;
 use crate::utils::database::Pool;
 use async_graphql::{Context, Object};
+use error::{ApiError, Result};
 use uuid::Uuid;
 
 pub struct Mutations;
-
-use crate::error::{ApiError, Result};
 
 #[Object]
 impl Mutations {
