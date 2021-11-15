@@ -19,41 +19,76 @@ impl Default for Info {
 	}
 }
 
-pub struct InfoBuilder {
+pub struct InfoFactory;
+
+impl Default for InfoFactory {
+	fn default() -> Self {
+		Self {}
+	}
+}
+
+impl InfoFactory {
+	pub fn info(self, count: i32, current_page: i32, page_size: i32) -> Info {
+		let pages = if count % page_size == 0 {
+			count / page_size
+		} else {
+			(count / page_size) + 1
+		};
+
+		let prev = if current_page == 1 {
+			None
+		} else {
+			Some(current_page - 1)
+		};
+
+		let next = if current_page == pages || pages <= 1 {
+			None
+		} else {
+			Some(current_page + 1)
+		};
+
+		let mut builder = InfoBuilder::new();
+		builder.set_values(count, pages, prev, next);
+
+		builder.build()
+	}
+}
+
+struct InfoBuilder {
 	info: Info,
 }
 
 impl InfoBuilder {
-	pub fn new() -> InfoBuilder {
+	fn new() -> InfoBuilder {
 		InfoBuilder {
 			info: Info::default(),
 		}
 	}
 
-	pub fn set_count(&mut self, count: i32) {
+	fn set_count(&mut self, count: i32) {
 		self.info.count = count;
 	}
 
-	pub fn set_pages(&mut self, pages: i32) {
+	fn set_pages(&mut self, pages: i32) {
 		self.info.pages = pages;
 	}
 
-	pub fn set_prev(&mut self, prev: Option<i32>) {
+	fn set_prev(&mut self, prev: Option<i32>) {
 		self.info.prev = prev;
 	}
 
-	pub fn set_next(&mut self, next: Option<i32>) {
+	fn set_next(&mut self, next: Option<i32>) {
 		self.info.next = next;
 	}
 
-	pub fn set_values(&mut self, count: i32, pages: i32, prev: Option<i32>, next: Option<i32>) {
+	fn set_values(&mut self, count: i32, pages: i32, prev: Option<i32>, next: Option<i32>) {
 		self.set_count(count);
 		self.set_pages(pages);
 		self.set_prev(prev);
 		self.set_next(next);
 	}
 
-	pub fn build(self) -> Info {
+	fn build(self) -> Info {
 		self.info
 	}
 }

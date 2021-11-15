@@ -1,5 +1,5 @@
 use crate::error::{BackendError, Result};
-use crate::graphql::info::{Info, InfoBuilder};
+use crate::graphql::info::{Info, InfoFactory};
 use crate::utils::database::Pool;
 use async_graphql::{Enum, InputObject, SimpleObject};
 use git::Repo;
@@ -261,57 +261,43 @@ impl Record {
 		page: i32,
 		query: String,
 	) -> Result<Records> {
-		let count = Record::size_of_public_record_filter_by_name(pool, query.clone())
-			.await
-			.unwrap() as i32;
-
-		let pages = if count % 15 == 0 {
-			count / 15
-		} else {
-			(count / 15) + 1
-		};
-
-		let prev = if page == 1 { None } else { Some(page - 1) };
-		let next = if page == pages { None } else { Some(page + 1) };
-
-		let mut info_builder = InfoBuilder::new();
-		info_builder.set_values(count, pages, prev, next);
-
-		match Record::read_public_by_page_filter_by_name(pool, page, query).await {
+		match Record::read_public_by_page_filter_by_name(pool, page, query.clone()).await {
 			Ok(results) => {
-				let mut builder = RecordsBuilder::new();
+				match Record::size_of_public_record_filter_by_name(pool, query).await {
+					Ok(count) => {
+						let mut builder = RecordsBuilder::new();
 
-				builder.set_values(info_builder.build(), Some(results));
+						builder.set_values(
+							InfoFactory::default().info(count as i32, page, 15),
+							Some(results),
+						);
 
-				Ok(builder.build())
-			}
+						Ok(builder.build())
+					},
+					Err(e) => Err(Box::new(e)),
+				}
+			},
 			Err(e) => Err(Box::new(e)),
 		}
 	}
 
 	pub async fn public_record_paginated(pool: &Pool, page: i32) -> Result<Records> {
-		let count = Record::size_of_public_record(pool).await.unwrap() as i32;
-
-		let pages = if count % 15 == 0 {
-			count / 15
-		} else {
-			(count / 15) + 1
-		};
-
-		let prev = if page == 1 { None } else { Some(page - 1) };
-		let next = if page == pages { None } else { Some(page + 1) };
-
-		let mut info_builder = InfoBuilder::new();
-		info_builder.set_values(count, pages, prev, next);
-
 		match Record::read_public_by_page(pool, page).await {
 			Ok(results) => {
-				let mut builder = RecordsBuilder::new();
+				match Record::size_of_public_record(pool).await {
+					Ok(count) => {
+						let mut builder = RecordsBuilder::new();
 
-				builder.set_values(info_builder.build(), Some(results));
+						builder.set_values(
+							InfoFactory::default().info(count as i32, page, 15),
+							Some(results),
+						);
 
-				Ok(builder.build())
-			}
+						Ok(builder.build())
+					},
+					Err(e) => Err(Box::new(e)),
+				}
+			},
 			Err(e) => Err(Box::new(e)),
 		}
 	}
