@@ -2,8 +2,9 @@ mod git;
 
 use crate::auth;
 use crate::graphql;
-use crate::utils::config::Config;
+use crate::utils::{config::Config, database};
 use actix_files as fs;
+use actix_web::middleware::Logger;
 use actix_web::{guard, web, App, HttpRequest, HttpResponse, HttpServer, Result};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_actix_web::{Request, Response};
@@ -18,8 +19,11 @@ impl Server {
 	pub async fn start() -> std::io::Result<()> {
 		let schema = graphql::build_schema().await;
 
+		let pool = database::default_pool().await;
+
 		HttpServer::new(move || {
 			App::new()
+				.wrap(Logger::default())
 				.app_data(web::Data::new(schema.clone()))
 				.service(web::resource("/api").guard(guard::Post()).to(index))
 				.service(
@@ -28,10 +32,17 @@ impl Server {
 						.to(index_playground),
 				)
 				.service(
-					web::scope("/git").configure(git::init)
+					web::scope("/git")
+						.app_data(web::Data::new(pool.clone()))
+						.configure(git::init),
 				)
+				.service(fs::Files::new(
+					"/pkg",
+					&format!("{}/pkg", Config::client_path()),
+				))
 				.service(
-					fs::Files::new("/", Config::client_path().as_str()).index_file("index.html"),
+					fs::Files::new("/{path:.*}", Config::client_path().as_str())
+						.index_file("index.html"),
 				)
 		})
 		.bind(Config::url())?
