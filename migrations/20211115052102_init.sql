@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.users
 (
     id uuid NOT NULL,
     email text COLLATE pg_catalog."default" NOT NULL,
-	avatar text COLLATE pg_catalog."default" NOT NULL,
+	avatar text COLLATE pg_catalog."default" NOT NULL DEFAULT 'url.png',
     username text COLLATE pg_catalog."default" NOT NULL,
     password text COLLATE pg_catalog."default" NOT NULL,
     verified boolean NOT NULL,
