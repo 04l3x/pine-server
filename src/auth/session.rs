@@ -24,7 +24,7 @@ impl Token {
 impl Token {
 	pub fn generate(user_id: Uuid, duration_min: i64) -> Token {
 		let iat = Utc::now();
-		let exp = iat + chrono::Duration::minutes(duration_min);
+		let exp = iat + Duration::minutes(duration_min);
 		Token(
 			encode(
 				&Header::new(Algorithm::HS512),
