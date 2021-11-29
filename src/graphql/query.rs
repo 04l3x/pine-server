@@ -1,8 +1,9 @@
 use crate::models::record::{Record, /*RecordFilter, */ Records};
 use crate::utils::database::Pool;
 use async_graphql::{Context, Object};
-use error::Result;
+use error::{Result, ApiError};
 //use git::{RepoTree, RepoFullTree/*, RepoFullInfo*/};
+use crate::auth::session::Token;
 
 pub struct Queries;
 
@@ -29,6 +30,14 @@ impl Queries {
 			},
 		}
 	}
+
+	async fn is_logged(&self, ctx: &Context<'_>) -> Result<bool> {
+		match ctx.data::<Token>() {
+			Ok(token) => Ok(token.is_valid()),
+			Err(_) => Err(Box::new(ApiError::Unauthenticated)),
+		}
+	}
+
 
 	//async fn public_record(
 	//	&self,
