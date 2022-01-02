@@ -2,10 +2,10 @@ use async_graphql::SimpleObject;
 
 #[derive(Clone, Debug, SimpleObject)]
 pub struct Info {
-	count: i32,
-	pages: i32,
-	prev: Option<i32>,
-	next: Option<i32>,
+	count: usize,
+	pages: usize,
+	prev: Option<usize>,
+	next: Option<usize>,
 }
 
 impl Default for Info {
@@ -28,7 +28,7 @@ impl Default for InfoFactory {
 }
 
 impl InfoFactory {
-	pub fn info(self, count: i32, current_page: i32, page_size: i32) -> Info {
+	pub fn info(self, count: usize, current_page: usize, page_size: usize) -> Info {
 		let pages = if count % page_size == 0 {
 			count / page_size
 		} else {
@@ -65,23 +65,23 @@ impl InfoBuilder {
 		}
 	}
 
-	fn set_count(&mut self, count: i32) {
+	fn set_count(&mut self, count: usize) {
 		self.info.count = count;
 	}
 
-	fn set_pages(&mut self, pages: i32) {
+	fn set_pages(&mut self, pages: usize) {
 		self.info.pages = pages;
 	}
 
-	fn set_prev(&mut self, prev: Option<i32>) {
+	fn set_prev(&mut self, prev: Option<usize>) {
 		self.info.prev = prev;
 	}
 
-	fn set_next(&mut self, next: Option<i32>) {
+	fn set_next(&mut self, next: Option<usize>) {
 		self.info.next = next;
 	}
 
-	fn set_values(&mut self, count: i32, pages: i32, prev: Option<i32>, next: Option<i32>) {
+	fn set_values(&mut self, count: usize, pages: usize, prev: Option<usize>, next: Option<usize>) {
 		self.set_count(count);
 		self.set_pages(pages);
 		self.set_prev(prev);

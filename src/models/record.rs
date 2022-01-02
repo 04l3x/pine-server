@@ -124,7 +124,7 @@ impl Record {
 		.await
 	}
 
-	async fn read_public_by_page(pool: &Pool, page: i32) -> sqlx::Result<Vec<RecordInfo>> {
+	async fn read_public_by_page(pool: &Pool, page: usize) -> sqlx::Result<Vec<RecordInfo>> {
 		sqlx::query_as::<_, RecordInfo>(
 			"
 			SELECT
@@ -141,14 +141,14 @@ impl Record {
 			ORDER BY id LIMIT 15 OFFSET $1;
 		",
 		)
-		.bind((page - 1) * 15)
+		.bind((page as u32 - 1) * 15)
 		.fetch_all(pool)
 		.await
 	}
 
 	async fn read_public_by_page_filter_by_name(
 		pool: &Pool,
-		page: i32,
+		page: usize,
 		query: String,
 	) -> sqlx::Result<Vec<RecordInfo>> {
 		sqlx::query_as::<_, RecordInfo>(
@@ -168,7 +168,7 @@ impl Record {
 		",
 		)
 		.bind(query)
-		.bind((page - 1) * 15)
+		.bind((page as u32 - 1) * 15)
 		.fetch_all(pool)
 		.await
 	}
@@ -258,7 +258,7 @@ impl Record {
 
 	pub async fn public_record_paginated_with_name_filter(
 		pool: &Pool,
-		page: i32,
+		page: usize,
 		query: String,
 	) -> Result<Records> {
 		match Record::read_public_by_page_filter_by_name(pool, page, query.clone()).await {
@@ -267,7 +267,7 @@ impl Record {
 					let mut builder = RecordsBuilder::new();
 
 					builder.set_values(
-						InfoFactory::default().info(count as i32, page, 15),
+						InfoFactory::default().info(count as usize, page, 15),
 						Some(results),
 					);
 
@@ -279,14 +279,14 @@ impl Record {
 		}
 	}
 
-	pub async fn public_record_paginated(pool: &Pool, page: i32) -> Result<Records> {
+	pub async fn public_record_paginated(pool: &Pool, page: usize) -> Result<Records> {
 		match Record::read_public_by_page(pool, page).await {
 			Ok(results) => match Record::size_of_public_record(pool).await {
 				Ok(count) => {
 					let mut builder = RecordsBuilder::new();
 
 					builder.set_values(
-						InfoFactory::default().info(count as i32, page, 15),
+						InfoFactory::default().info(count as usize, page, 15),
 						Some(results),
 					);
 

@@ -1,7 +1,7 @@
 use crate::models::record::{Record, /*RecordFilter, */ Records};
 use crate::utils::database::Pool;
 use async_graphql::{Context, Object};
-use error::{Result, ApiError};
+use error::{ApiError, Result};
 //use git::{RepoTree, RepoFullTree/*, RepoFullInfo*/};
 use crate::auth::session::Token;
 
@@ -12,7 +12,7 @@ impl Queries {
 	async fn public_record(
 		&self,
 		ctx: &Context<'_>,
-		page: Option<i32>,
+		page: Option<usize>,
 		query: Option<String>,
 	) -> Result<Records> {
 		let pool = ctx.data::<Pool>().expect("error pool ctx");
@@ -38,11 +38,10 @@ impl Queries {
 		}
 	}
 
-
 	//async fn public_record(
 	//	&self,
 	//	ctx: &Context<'_>,
-	//	page: Option<i32>,
+	//	page: Option<usize>,
 	//	query: Option<String>, //Option<Filter>
 	//) -> Result<Records> {
 	//	let pool = ctx.data::<Pool>().expect("error pool ctx");
