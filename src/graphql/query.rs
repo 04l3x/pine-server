@@ -68,7 +68,7 @@ impl Queries {
 
 		match Record::repo_path(pool, repo_name, username).await {
 			Ok(path) => {
-				git::Repo::debug_tree(path);
+				git::repository::Repository::debug_tree(path);
 				Ok(true)
 			}
 			Err(e) => Err(e),

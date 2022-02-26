@@ -2,7 +2,7 @@ use crate::graphql::info::{Info, InfoFactory};
 use crate::utils::database::Pool;
 use async_graphql::{Enum, InputObject, SimpleObject};
 use error::Result;
-use git::Repo;
+use git::repository::Repository;
 use sqlx;
 use sqlx::{
 	postgres::{PgQueryResult, PgRow},
@@ -249,7 +249,7 @@ impl Record {
 
 		match new_repo.insert(pool).await {
 			Ok(_) => {
-				Repo::new_bare(repo_id.clone(), owner_id);
+				Repository::init_bare(repo_id.clone(), owner_id)?;
 				Ok(repo_id)
 			}
 			Err(e) => Err(Box::new(e)),
