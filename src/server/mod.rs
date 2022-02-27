@@ -3,14 +3,13 @@ mod git;
 use crate::auth;
 use crate::graphql;
 use crate::utils::{config::Config, database};
-use actix_files as fs;
+use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::{guard, web, App, HttpRequest, HttpResponse, HttpServer, Result};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_actix_web::{Request, Response};
 
-///the server serve four things
-///the frontend client app that is a static content generated with wasm-pack
+///the server serve three things
 ///the graphql api that is cosumed by the frontend client
 ///post and get routes for repositoriess, to enable clone, push, and pull git operations
 pub struct Server;
@@ -22,7 +21,10 @@ impl Server {
 		let pool = database::default_pool().await;
 
 		HttpServer::new(move || {
+			let cors = Cors::permissive();
+
 			App::new()
+				.wrap(cors)
 				.wrap(Logger::default())
 				.app_data(web::Data::new(schema.clone()))
 				.service(web::resource("/api").guard(guard::Post()).to(index))
@@ -35,14 +37,6 @@ impl Server {
 					web::scope("/git")
 						.app_data(web::Data::new(pool.clone()))
 						.configure(git::init),
-				)
-				.service(fs::Files::new(
-					"/pkg",
-					&format!("{}/pkg", Config::client_path()),
-				))
-				.service(
-					fs::Files::new("/{path:.*}", Config::client_path().as_str())
-						.index_file("index.html"),
 				)
 		})
 		.bind(Config::url())?
