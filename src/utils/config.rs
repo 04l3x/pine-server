@@ -4,6 +4,7 @@ use std::fs;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
+#[allow(dead_code)]
 #[derive(Debug, StructOpt)]
 pub struct Args {
 	#[structopt(short, long, default_value = "none")]
@@ -59,10 +60,6 @@ impl Config {
 			env::var("HOST").expect("host error"),
 			env::var("PORT").expect("port error")
 		)
-	}
-
-	pub fn client_path() -> String {
-		env::var("CLIENT_PATH").unwrap()
 	}
 }
 

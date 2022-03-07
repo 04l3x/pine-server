@@ -38,26 +38,6 @@ impl Queries {
 		}
 	}
 
-	//async fn public_record(
-	//	&self,
-	//	ctx: &Context<'_>,
-	//	page: Option<usize>,
-	//	query: Option<String>, //Option<Filter>
-	//) -> Result<Records> {
-	//	let pool = ctx.data::<Pool>().expect("error pool ctx");
-
-	//	match query {
-	//		Some(query) => match page {
-	//			Some(page) => Ok(RecordsBuilder::new().build()),
-	//			None => Ok(RecordsBuilder::new().build()),
-	//		},
-	//		None => match page {
-	//			Some(page) => Record::public_record_paginated(pool, page).await,
-	//			None => Record::public_record_paginated(pool, 1).await,
-	//		},
-	//	}
-	//}
-
 	async fn debug_tree(
 		&self,
 		ctx: &Context<'_>,
