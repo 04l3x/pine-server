@@ -5,9 +5,9 @@ authors = ["0al3x alex.vacan.bala@gmail.com"]
 edition = "2021"
 
 [dependencies]
-actix-web = "3"
-actix-cors = "0.5"
-async-graphql-actix-web = "2.9"
+actix-web = "4"
+actix-cors = "0.6"
+async-graphql-actix-web = "3"
 env_logger = "0.8"
 log = "0.4"
 git2 = "0.14"
@@ -21,7 +21,7 @@ version = "0.3"
 features = ["std"]
 
 [dependencies.async-graphql]
-version = "2.9"
+version = "3"
 features = [
 	"uuid"
 ]

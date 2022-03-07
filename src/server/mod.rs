@@ -7,7 +7,7 @@ use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::{guard, web, App, HttpRequest, HttpResponse, HttpServer, Result};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
-use async_graphql_actix_web::{Request, Response};
+use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
 
 ///the server serve three things
 ///the graphql api that is cosumed by the frontend client
@@ -48,8 +48,8 @@ impl Server {
 async fn index(
 	schema: web::Data<graphql::Schema>,
 	req: HttpRequest,
-	gql_request: Request,
-) -> Response {
+	gql_request: GraphQLRequest,
+) -> GraphQLResponse {
 	let token = req.headers().get("Token").and_then(|value| {
 		value
 			.to_str()
