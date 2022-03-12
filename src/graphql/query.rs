@@ -1,9 +1,14 @@
-use crate::models::record::{Record, /*RecordFilter, */ Records};
+use crate::models::{
+	record::{Record, /*RecordFilter, */ Records},
+	repository,
+};
 use crate::utils::database::Pool;
 use async_graphql::{Context, Object};
-use error::{ApiError, Result};
+use error::{ApiError, GitError, Result};
 //use git::{RepoTree, RepoFullTree/*, RepoFullInfo*/};
 use crate::auth::session::Token;
+use git::tree::Tree;
+use uuid::Uuid;
 
 pub struct Queries;
 
@@ -38,20 +43,12 @@ impl Queries {
 		}
 	}
 
-	async fn debug_tree(
-		&self,
-		ctx: &Context<'_>,
-		username: String,
-		repo_name: String,
-	) -> Result<bool> {
+	async fn repo_tree(&self, ctx: &Context<'_>, id: Uuid) -> Result<Tree> {
 		let pool = ctx.data::<Pool>().expect("error pool ctx");
 
-		match Record::repo_path(pool, repo_name, username).await {
-			Ok(path) => {
-				git::repository::Repository::debug_tree(path);
-				Ok(true)
-			}
-			Err(e) => Err(e),
+		match repository::Repository::path_by_uuid(pool, &id).await {
+			Ok(path) => repository::Repository::full_tree(path),
+			Err(_) => Err(Box::new(GitError::Other)),
 		}
 	}
 }

@@ -11,13 +11,13 @@ pub async fn default_pool() -> Pool {
 		.expect("db error")
 }
 
-pub async fn pool_with_options(max_connections: u32) -> Pool {
+/*pub async fn pool_with_options(max_connections: u32) -> Pool {
 	PgPoolOptions::new()
 		.max_connections(max_connections)
 		.connect(uri().as_str())
 		.await
 		.expect("db error")
-}
+}*/
 
 fn uri() -> String {
 	format!(
